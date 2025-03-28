@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/AthulKrishna2501/zyra-vendor-service/internals/core/models"
 	"gorm.io/gorm"
@@ -22,7 +23,10 @@ type AdminStorage struct {
 
 type AdminRepository interface {
 	UpdateCategoryRequestStatus(ctx context.Context, vendorID, categoryID, status string) error
+	UpdateRequestStatus(ctx context.Context, vendorID, status string) error
 	GetAllUsers(ctx context.Context) ([]User, error)
+	AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error
+	GetRequests(ctx context.Context) ([]models.CategoryRequest, error)
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -43,6 +47,7 @@ func (r *AdminStorage) UpdateCategoryRequestStatus(ctx context.Context, vendorID
 	if result.RowsAffected == 0 {
 		return errors.New("category request not found")
 	}
+
 	return nil
 }
 
@@ -56,4 +61,38 @@ func (r *AdminStorage) GetAllUsers(ctx context.Context) ([]User, error) {
 		return nil, result.Error
 	}
 	return users, nil
+}
+
+func (r *AdminStorage) UpdateRequestStatus(ctx context.Context, vendorID, status string) error {
+	if err := r.DB.WithContext(ctx).Update("status", true).Where("user_id=?", vendorID); err != nil {
+		return err.Error
+	}
+
+	return nil
+}
+
+func (r *AdminStorage) AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error {
+	vendorCategory := models.VendorCategory{
+		VendorID:   VendorID,
+		CategoryID: CategoryID,
+	}
+	err := r.DB.WithContext(ctx).Create(&vendorCategory).Error
+	if err != nil {
+		log.Printf("Error adding vendor category: %v", err)
+		return err
+	}
+
+	log.Println("Vendor category added successfully")
+	return nil
+}
+
+func (r *AdminStorage) GetRequests(ctx context.Context) ([]models.CategoryRequest, error) {
+	var CatRequests []models.CategoryRequest
+	result := r.DB.WithContext(ctx).Select("vendor_id,category_id").Find(&CatRequests)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return CatRequests, nil
 }

@@ -37,10 +37,21 @@ func (s *AdminService) ApproveRejectCategory(ctx context.Context, req *pb.Approv
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid status. Allowed values: 'approved', 'rejected'")
 	}
 
+	if req.Status == "approved" {
+		if err := s.AdminRepo.AddVendorCategory(ctx, req.VendorId, req.CategoryId); err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+	}
+
 	err := s.AdminRepo.UpdateCategoryRequestStatus(ctx, req.VendorId, req.CategoryId, req.Status)
 	if err != nil {
 		log.Printf("Admin Service: ERROR - Failed to update category request: %v", err)
 		return nil, status.Errorf(codes.Internal, "Failed to update category request: %v", err)
+	}
+
+	err = s.AdminRepo.UpdateRequestStatus(ctx, req.VendorId, req.Status)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to update status: %v", err)
 	}
 
 	log.Printf("Admin Service: Successfully updated category request - VendorID=%s, CategoryID=%s, Status=%s",
@@ -56,8 +67,6 @@ func (s *AdminService) BlockUser(ctx context.Context, req *pb.BlockUnblockUserRe
 	if req.UserId == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "User ID cannot be empty")
 	}
-
-	
 
 	err := s.redisClient.SAdd(ctx, "blocked_users", req.UserId).Err()
 	if err != nil {
@@ -102,4 +111,23 @@ func (s *AdminService) ListUsers(ctx context.Context, req *pb.ListUsersRequest) 
 	}
 
 	return &pb.ListUsersResponse{Users: userList}, nil
+}
+
+func (s *AdminService) ViewRequests(ctx context.Context, req *pb.ViewRequestsReq) (*pb.ViewRequestsResponse, error) {
+	requests, err := s.AdminRepo.GetRequests(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var pbRequests []*pb.CategoryRequest
+	for _, r := range requests {
+		pbRequests = append(pbRequests, &pb.CategoryRequest{
+			VendorId:   r.VendorID,
+			CategoryId: r.CategoryID,
+		})
+	}
+
+	return &pb.ViewRequestsResponse{
+		Requests: pbRequests,
+	}, nil
 }
