@@ -3,9 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
+	auth "github.com/AthulKrishna2501/zyra-auth-service/internals/core/models"
 	"github.com/AthulKrishna2501/zyra-vendor-service/internals/core/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -27,6 +30,7 @@ type AdminRepository interface {
 	GetAllUsers(ctx context.Context) ([]User, error)
 	AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error
 	GetRequests(ctx context.Context) ([]models.CategoryRequest, error)
+	CreateCategory(ctx context.Context, name string) error
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -36,16 +40,18 @@ func NewAdminRepository(db *gorm.DB) AdminRepository {
 }
 
 func (r *AdminStorage) UpdateCategoryRequestStatus(ctx context.Context, vendorID, categoryID, status string) error {
-	result := r.DB.WithContext(ctx).
-		Model(&models.CategoryRequest{}).
-		Where("vendor_id = ? AND category_id = ?", vendorID, categoryID).
+	err := r.DB.WithContext(ctx).Model(&auth.User{}).
+		Where("user_id = ?", vendorID).
 		Update("status", status)
 
-	if result.Error != nil {
-		return result.Error
+	if err != nil {
+		return errors.New("failed to updated user status")
 	}
-	if result.RowsAffected == 0 {
-		return errors.New("category request not found")
+
+	err = r.DB.Where("vendor_id = ?", vendorID).Delete(&models.CategoryRequest{})
+
+	if err != nil {
+		return errors.New("failed to delete category request")
 	}
 
 	return nil
@@ -64,19 +70,34 @@ func (r *AdminStorage) GetAllUsers(ctx context.Context) ([]User, error) {
 }
 
 func (r *AdminStorage) UpdateRequestStatus(ctx context.Context, vendorID, status string) error {
-	if err := r.DB.WithContext(ctx).Update("status", true).Where("user_id=?", vendorID); err != nil {
-		return err.Error
+	result := r.DB.WithContext(ctx).Model(&auth.User{}).Where("user_id = ?", vendorID).Update("status", status)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no records updated, user_id %s not found", vendorID)
 	}
 
 	return nil
 }
 
 func (r *AdminStorage) AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error {
-	vendorCategory := models.VendorCategory{
-		VendorID:   VendorID,
-		CategoryID: CategoryID,
+	vendorUUID, err := uuid.Parse(VendorID)
+	if err != nil {
+		return fmt.Errorf("invalid vendor ID format: %v", err)
 	}
-	err := r.DB.WithContext(ctx).Create(&vendorCategory).Error
+	categoryUUID, err := uuid.Parse(CategoryID)
+	if err != nil {
+		return fmt.Errorf("invalid vendor ID format: %v", err)
+	}
+
+	vendorCategory := models.VendorCategory{
+		VendorID:   vendorUUID,
+		CategoryID: categoryUUID,
+	}
+	err = r.DB.WithContext(ctx).Create(&vendorCategory).Error
 	if err != nil {
 		log.Printf("Error adding vendor category: %v", err)
 		return err
@@ -94,5 +115,32 @@ func (r *AdminStorage) GetRequests(ctx context.Context) ([]models.CategoryReques
 		return nil, result.Error
 	}
 
+	if result.RowsAffected == 0 {
+		return nil, errors.New("no requests in the queue")
+	}
+
 	return CatRequests, nil
+}
+
+func (r *AdminStorage) CreateCategory(ctx context.Context, name string) error {
+	var category models.Category
+	log.Print("Category to be added :", name)
+	err := r.DB.WithContext(ctx).Where("category_name = ?", name).First(&category).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		newCategory := &models.Category{
+			CategoryName: name,
+		}
+
+		if err := r.DB.WithContext(ctx).Create(newCategory).Error; err != nil {
+			return err
+		}
+		return nil
+
+	} else if err != nil {
+		return err
+	}
+
+	return fmt.Errorf("category name '%s' already exists", name)
+
 }

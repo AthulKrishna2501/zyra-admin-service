@@ -3,8 +3,9 @@ module github.com/AthulKrishna2501/zyra-admin-service
 go 1.24.1
 
 require (
-	github.com/AthulKrishna2501/proto-repo v0.0.0-20250328053059-163e1a676383
-	github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250325061752-41da5e56df5a
+	github.com/AthulKrishna2501/proto-repo v0.0.0-20250328085232-e0bb13a7fbae
+	github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250326043459-f9afef228c5c
+	github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250329082622-b62fafbb7ad6
 	github.com/gin-gonic/gin v1.10.0
 	github.com/redis/go-redis/v9 v9.7.1
 	github.com/sirupsen/logrus v1.9.3
@@ -15,7 +16,6 @@ require (
 )
 
 require (
-	github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250324133351-8ed544d6e5c0 // indirect
 	github.com/bytedance/sonic v1.13.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

@@ -43,13 +43,7 @@ func (s *AdminService) ApproveRejectCategory(ctx context.Context, req *pb.Approv
 		}
 	}
 
-	err := s.AdminRepo.UpdateCategoryRequestStatus(ctx, req.VendorId, req.CategoryId, req.Status)
-	if err != nil {
-		log.Printf("Admin Service: ERROR - Failed to update category request: %v", err)
-		return nil, status.Errorf(codes.Internal, "Failed to update category request: %v", err)
-	}
-
-	err = s.AdminRepo.UpdateRequestStatus(ctx, req.VendorId, req.Status)
+	err := s.AdminRepo.UpdateRequestStatus(ctx, req.VendorId, req.Status)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to update status: %v", err)
 	}
@@ -122,12 +116,23 @@ func (s *AdminService) ViewRequests(ctx context.Context, req *pb.ViewRequestsReq
 	var pbRequests []*pb.CategoryRequest
 	for _, r := range requests {
 		pbRequests = append(pbRequests, &pb.CategoryRequest{
-			VendorId:   r.VendorID,
-			CategoryId: r.CategoryID,
+			VendorId:   r.VendorID.String(),
+			CategoryId: r.CategoryID.String(),
 		})
 	}
 
 	return &pb.ViewRequestsResponse{
 		Requests: pbRequests,
+	}, nil
+}
+
+func (s *AdminService) AddCategory(ctx context.Context, req *pb.AddCategoryRequest) (*pb.AddCategoryResponse, error) {
+	err := s.AdminRepo.CreateCategory(ctx, req.CategoryName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.AddCategoryResponse{
+		Message: "category added successfully",
 	}, nil
 }
