@@ -48,6 +48,11 @@ func (s *AdminService) ApproveRejectCategory(ctx context.Context, req *pb.Approv
 		return nil, status.Errorf(codes.Internal, "Failed to update status: %v", err)
 	}
 
+	err = s.AdminRepo.DeleteRequest(ctx, req.VendorId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to delete category request %v", err)
+	}
+
 	log.Printf("Admin Service: Successfully updated category request - VendorID=%s, CategoryID=%s, Status=%s",
 		req.VendorId, req.CategoryId, req.Status)
 
@@ -134,5 +139,19 @@ func (s *AdminService) AddCategory(ctx context.Context, req *pb.AddCategoryReque
 
 	return &pb.AddCategoryResponse{
 		Message: "category added successfully",
+	}, nil
+}
+
+func (s *AdminService) AdminDashBoard(ctx context.Context, req *pb.AdminDashBoardRequest) (*pb.AdminDashBoardResponse, error) {
+	stats, err := s.AdminRepo.GetAdminDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.AdminDashBoardResponse{
+		TotalVendors:  stats.TotalVendors,
+		TotalClients:  stats.TotalClients,
+		TotalBookings: stats.TotalBookings,
+		TotalRevenue:  stats.TotalRevenue,
 	}, nil
 }

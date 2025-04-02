@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	adminModel "github.com/AthulKrishna2501/zyra-admin-service/internals/core/models"
 	auth "github.com/AthulKrishna2501/zyra-auth-service/internals/core/models"
 	"github.com/AthulKrishna2501/zyra-vendor-service/internals/core/models"
 	"github.com/google/uuid"
@@ -31,6 +32,8 @@ type AdminRepository interface {
 	AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error
 	GetRequests(ctx context.Context) ([]models.CategoryRequest, error)
 	CreateCategory(ctx context.Context, name string) error
+	DeleteRequest(ctx context.Context, vendorID string) error
+	GetAdminDashboard(ctx context.Context) (*adminModel.DashboardStats, error)
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -143,4 +146,35 @@ func (r *AdminStorage) CreateCategory(ctx context.Context, name string) error {
 
 	return fmt.Errorf("category name '%s' already exists", name)
 
+}
+
+func (r *AdminStorage) DeleteRequest(ctx context.Context, vendorID string) error {
+	if err := r.DB.WithContext(ctx).
+		Where("vendor_id = ?", vendorID).
+		Delete(&models.CategoryRequest{}).Error; err != nil {
+		return fmt.Errorf("failed to delete category request for vendor_id %s", vendorID)
+	}
+
+	return nil
+
+}
+
+func (r *AdminStorage) GetAdminDashboard(ctx context.Context) (*adminModel.DashboardStats, error) {
+	var stats adminModel.DashboardStats
+
+	err := r.DB.WithContext(ctx).
+		Raw(`
+			SELECT 
+				(SELECT COUNT(*) FROM users WHERE role = 'vendor') AS total_vendors,
+				(SELECT COUNT(*) FROM users WHERE role = 'client') AS total_clients,
+				(SELECT COUNT(*) FROM bookings) AS total_bookings,
+				COALESCE(SUM(price), 0) AS total_revenue
+			FROM bookings
+		`).Scan(&stats).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
 }
