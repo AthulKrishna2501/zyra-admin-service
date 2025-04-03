@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 
 	pb "github.com/AthulKrishna2501/proto-repo/admin"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/app/config"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/core/repository"
+	"github.com/AthulKrishna2501/zyra-admin-service/internals/logger"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,23 +17,22 @@ type AdminService struct {
 	pb.UnimplementedAdminServiceServer
 	AdminRepo   repository.AdminRepository
 	redisClient *redis.Client
+	log         logger.Logger
 }
 
-func NewAdminService(AdminRepo repository.AdminRepository) *AdminService {
-	return &AdminService{AdminRepo: AdminRepo, redisClient: config.RedisClient}
+func NewAdminService(AdminRepo repository.AdminRepository, logger logger.Logger) *AdminService {
+	return &AdminService{AdminRepo: AdminRepo, redisClient: config.RedisClient, log: logger}
 }
 
 func (s *AdminService) ApproveRejectCategory(ctx context.Context, req *pb.ApproveRejectCategoryRequest) (*pb.ApproveRejectCategoryResponse, error) {
-	log.Printf("Admin Service: Received gRPC request - VendorID=%s, CategoryID=%s, Status=%s",
+	s.log.Info("Admin Service: Received gRPC request - VendorID=%s, CategoryID=%s, Status=%s",
 		req.VendorId, req.CategoryId, req.Status)
 
 	if req.VendorId == "" || req.CategoryId == "" || req.Status == "" {
-		log.Println("Admin Service: ERROR - Missing required fields in gRPC request")
 		return nil, status.Errorf(codes.InvalidArgument, "VendorID, CategoryID, and Status are required")
 	}
 
 	if req.Status != "approved" && req.Status != "rejected" {
-		log.Println("Admin Service: ERROR - Invalid status value")
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid status. Allowed values: 'approved', 'rejected'")
 	}
 
@@ -53,7 +52,7 @@ func (s *AdminService) ApproveRejectCategory(ctx context.Context, req *pb.Approv
 		return nil, status.Errorf(codes.Internal, "Failed to delete category request %v", err)
 	}
 
-	log.Printf("Admin Service: Successfully updated category request - VendorID=%s, CategoryID=%s, Status=%s",
+	s.log.Info("Admin Service: Successfully updated category request - VendorID=%s, CategoryID=%s, Status=%s",
 		req.VendorId, req.CategoryId, req.Status)
 
 	return &pb.ApproveRejectCategoryResponse{

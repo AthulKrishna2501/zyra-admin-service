@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func StartgRPCServer(AdminRepo repository.AdminRepository, log logger.Logger) error{
+func StartgRPCServer(AdminRepo repository.AdminRepository, log logger.Logger) error {
 	go func() {
 		lis, err := net.Listen("tcp", ":5005")
 		if err != nil {
@@ -22,7 +22,7 @@ func StartgRPCServer(AdminRepo repository.AdminRepository, log logger.Logger) er
 			grpc.MaxRecvMsgSize(1024*1024*100),
 			grpc.MaxSendMsgSize(1024*1024*100),
 		)
-		adminService := services.NewAdminService(AdminRepo)
+		adminService := services.NewAdminService(AdminRepo, log)
 		admin.RegisterAdminServiceServer(grpcServer, adminService)
 
 		log.Info("gRPC Server started on port 5005")
