@@ -122,7 +122,9 @@ func (s *AdminService) ViewRequests(ctx context.Context, req *pb.ViewRequestsReq
 		pbRequests = append(pbRequests, &pb.CategoryRequest{
 			VendorId:   r.VendorID.String(),
 			CategoryId: r.CategoryID.String(),
+			Name:       r.CategoryName,
 		})
+
 	}
 
 	return &pb.ViewRequestsResponse{
@@ -163,5 +165,24 @@ func (s *AdminService) ViewAdminWallet(ctx context.Context, req *pb.ViewAdminWal
 
 	return &pb.ViewAdminWalletResponse{
 		Balance: float32(amount),
+	}, nil
+}
+
+func (s *AdminService) ListCategory(ctx context.Context, req *pb.ListCategoryRequest) (*pb.ListCategoryResponse, error) {
+	categories, err := s.AdminRepo.ListCategories(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to fetch categories: %v", err)
+	}
+
+	var categoryResponses []*pb.Category
+	for _, cat := range categories {
+		categoryResponses = append(categoryResponses, &pb.Category{
+			CategoryId:   cat.CategoryID.String(),
+			CategoryName: cat.CategoryName,
+		})
+	}
+
+	return &pb.ListCategoryResponse{
+		Categories: categoryResponses,
 	}, nil
 }

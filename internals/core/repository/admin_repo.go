@@ -31,6 +31,7 @@ type AdminRepository interface {
 	UpdateCategoryRequestStatus(ctx context.Context, vendorID, categoryID, status string) error
 	UpdateRequestStatus(ctx context.Context, vendorID, status string) error
 	GetAllUsers(ctx context.Context) ([]User, error)
+	ListCategories(ctx context.Context) ([]models.Category, error)
 	AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error
 	GetRequests(ctx context.Context) ([]models.CategoryRequest, error)
 	CreateCategory(ctx context.Context, name string) error
@@ -115,7 +116,7 @@ func (r *AdminStorage) AddVendorCategory(ctx context.Context, VendorID, Category
 
 func (r *AdminStorage) GetRequests(ctx context.Context) ([]models.CategoryRequest, error) {
 	var CatRequests []models.CategoryRequest
-	result := r.DB.WithContext(ctx).Select("vendor_id,category_id").Find(&CatRequests)
+	result := r.DB.WithContext(ctx).Select("vendor_id,category_id,category_name").Find(&CatRequests)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -195,4 +196,16 @@ func (r *AdminStorage) GetWalletBalance(ctx context.Context, email string) (floa
 	}
 
 	return balance, nil
+}
+
+func (r *AdminStorage) ListCategories(ctx context.Context) ([]models.Category, error) {
+	var categories []models.Category
+
+	err := r.DB.Statement.DB.WithContext(ctx).
+		Find(&categories).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
 }
