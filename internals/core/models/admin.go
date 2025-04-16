@@ -25,9 +25,9 @@ type Booking struct {
 	ID        uuid.UUID          `gorm:"type:uuid;primaryKey;default:gen_random_uuid()"`
 	BookingID uuid.UUID          `gorm:"type:uuid;default:gen_random_uuid()"`
 	ClientID  uuid.UUID          `gorm:"type:uuid;not null"`
-	Client    models.UserDetails `gorm:"foreignKey:ClientID;references:user_id"`
+	Client    models.UserDetails `gorm:"foreignKey:ClientID;references:UserID"`
 	VendorID  uuid.UUID          `gorm:"type:uuid;not null"`
-	Vendor    models.UserDetails `gorm:"foreignKey:VendorID;references:user_id"`
+	Vendor    models.UserDetails `gorm:"foreignKey:VendorID;references:UserID"`
 	Service   string             `gorm:"type:varchar(255)"`
 	Date      time.Time          `gorm:"type:date;not null"`
 	Status    string             `gorm:"type:varchar(50);not null"`
