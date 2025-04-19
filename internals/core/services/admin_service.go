@@ -11,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type AdminService struct {
@@ -123,6 +124,7 @@ func (s *AdminService) ViewRequests(ctx context.Context, req *pb.ViewRequestsReq
 			VendorId:   r.VendorID.String(),
 			CategoryId: r.CategoryID.String(),
 			Name:       r.CategoryName,
+			// VendorName: r.VendorName,
 		})
 
 	}
@@ -184,5 +186,35 @@ func (s *AdminService) ListCategory(ctx context.Context, req *pb.ListCategoryReq
 
 	return &pb.ListCategoryResponse{
 		Categories: categoryResponses,
+	}, nil
+}
+
+func (s *AdminService) GetAllBookings(ctx context.Context, req *pb.GetAllBookingsRequest) (*pb.GetAllBookingsResponse, error) {
+	bookings, err := s.AdminRepo.GetAllBookings(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to fetch bookings: %v", err)
+	}
+
+	var pbBookings []*pb.Booking
+	for _, booking := range bookings {
+		pbBookings = append(pbBookings, &pb.Booking{
+			BookingId: booking.BookingID.String(),
+			Client: &pb.Client{
+				FirstName: booking.Client.FirstName,
+				LastName:  booking.Client.LastName,
+			},
+			Vendor: &pb.Vendor{
+				FirstName: booking.Vendor.FirstName,
+				LastName:  booking.Vendor.LastName,
+			},
+			Service: booking.Service,
+			Date:    timestamppb.New(booking.Date),
+			Price:   int32(booking.Price),
+			Status:  booking.Status,
+		})
+	}
+
+	return &pb.GetAllBookingsResponse{
+		Bookings: pbBookings,
 	}, nil
 }

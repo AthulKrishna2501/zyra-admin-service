@@ -38,6 +38,7 @@ type AdminRepository interface {
 	DeleteRequest(ctx context.Context, vendorID string) error
 	GetAdminDashboard(ctx context.Context) (*adminModel.DashboardStats, error)
 	GetWalletBalance(ctx context.Context, email string) (float64, error)
+	GetAllBookings(ctx context.Context) ([]adminModel.Booking, error)
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -116,7 +117,11 @@ func (r *AdminStorage) AddVendorCategory(ctx context.Context, VendorID, Category
 
 func (r *AdminStorage) GetRequests(ctx context.Context) ([]models.CategoryRequest, error) {
 	var CatRequests []models.CategoryRequest
-	result := r.DB.WithContext(ctx).Select("vendor_id,category_id,category_name").Find(&CatRequests)
+	result := r.DB.WithContext(ctx).
+		Joins("JOIN categories c ON c.category_id = category_requests.category_id").
+		Joins("JOIN user_details u ON u.user_id = category_requests.vendor_id").
+		Select("category_requests.vendor_id, category_requests.category_id, c.category_name as category_name, u.first_name as vendor_name").
+		Find(&CatRequests)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -208,4 +213,33 @@ func (r *AdminStorage) ListCategories(ctx context.Context) ([]models.Category, e
 		return nil, err
 	}
 	return categories, nil
+}
+
+func (r *AdminStorage) GetAllBookings(ctx context.Context) ([]adminModel.Booking, error) {
+	var bookings []adminModel.Booking
+
+	query := `
+        SELECT 
+            b.booking_id,
+            b.client_id,
+            b.vendor_id,
+            b.service,
+            b.date,
+            b.price,
+            b.status,
+            c.first_name AS client_first_name,
+            c.last_name AS client_last_name,
+            v.first_name AS vendor_first_name,
+            v.last_name AS vendor_last_name
+        FROM bookings b
+        JOIN user_details c ON b.client_id = c.user_id
+        JOIN user_details v ON b.vendor_id = v.user_id
+    `
+
+	err := r.DB.WithContext(ctx).Raw(query).Scan(&bookings).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return bookings, nil
 }
