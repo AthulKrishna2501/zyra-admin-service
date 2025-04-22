@@ -30,5 +30,6 @@ func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.AdminWallet{},
 		&models.Booking{},
+		&models.AdminWalletTransaction{},
 	)
 }

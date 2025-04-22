@@ -16,6 +16,14 @@ type AdminWallet struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
+type AdminWalletTransaction struct {
+	TransactionID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
+	Date          time.Time `gorm:"date"`
+	Type          string    `gorm:"type:varchar(255)"`
+	Amount        float64
+	Status        string `gorm:"type:varchar(255)"`
+}
+
 type DashboardStats struct {
 	TotalVendors  int32
 	TotalClients  int32
