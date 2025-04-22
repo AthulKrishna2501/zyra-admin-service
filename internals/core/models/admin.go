@@ -8,9 +8,9 @@ import (
 )
 
 type AdminWallet struct {
-	Balance          float64   `json:"balance"`
-	TotalDeposits    float64   `json:"total_deposits"`
-	TotalWithdrawals float64   `json:"total_withdrawals"`
+	Balance          float64   `gorm:"default:0" json:"balance"`
+	TotalDeposits    float64   `gorm:"default:0" json:"total_deposits"`
+	TotalWithdrawals float64   `gorm:"default:0" json:"total_withdrawals"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
