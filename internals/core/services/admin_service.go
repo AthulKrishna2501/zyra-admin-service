@@ -160,13 +160,15 @@ func (s *AdminService) AdminDashBoard(ctx context.Context, req *pb.AdminDashBoar
 }
 
 func (s *AdminService) ViewAdminWallet(ctx context.Context, req *pb.ViewAdminWalletRequest) (*pb.ViewAdminWalletResponse, error) {
-	amount, err := s.AdminRepo.GetWalletBalance(ctx, req.Email)
+	wallet, err := s.AdminRepo.GetAdminWallet(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "failed to retrieve admin wallet %v", err.Error())
 	}
 
 	return &pb.ViewAdminWalletResponse{
-		Balance: float32(amount),
+		Balance:          float32(wallet.Balance),
+		TotalDeposits:    float32(wallet.TotalDeposits),
+		TotalWithdrawals: float32(wallet.TotalWithdrawals),
 	}, nil
 }
 

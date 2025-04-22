@@ -10,8 +10,6 @@ import (
 	auth "github.com/AthulKrishna2501/zyra-auth-service/internals/core/models"
 	"github.com/AthulKrishna2501/zyra-vendor-service/internals/core/models"
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -37,7 +35,7 @@ type AdminRepository interface {
 	CreateCategory(ctx context.Context, name string) error
 	DeleteRequest(ctx context.Context, vendorID string) error
 	GetAdminDashboard(ctx context.Context) (*adminModel.DashboardStats, error)
-	GetWalletBalance(ctx context.Context, email string) (float64, error)
+	GetAdminWallet(ctx context.Context, email string) (*adminModel.AdminWallet, error)
 	GetAllBookings(ctx context.Context) ([]adminModel.Booking, error)
 }
 
@@ -188,19 +186,16 @@ func (r *AdminStorage) GetAdminDashboard(ctx context.Context) (*adminModel.Dashb
 	return &stats, nil
 }
 
-func (r *AdminStorage) GetWalletBalance(ctx context.Context, email string) (float64, error) {
-	var balance float64
+func (r *AdminStorage) GetAdminWallet(ctx context.Context, email string) (*adminModel.AdminWallet, error) {
+	var wallet adminModel.AdminWallet
 
-	err := r.DB.Model(&adminModel.AdminWallet{}).
-		Where("email = ?", email).
-		Select("balance").
-		Scan(&balance).Error
+	err := r.DB.Where("email = ?", email).First(&wallet).Error
 
 	if err != nil {
-		return 0, status.Errorf(codes.Internal, "Failed to retrieve wallet balance: %v", err.Error())
+		return nil, err
 	}
 
-	return balance, nil
+	return &wallet, nil
 }
 
 func (r *AdminStorage) ListCategories(ctx context.Context) ([]models.Category, error) {
