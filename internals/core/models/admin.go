@@ -8,6 +8,7 @@ import (
 )
 
 type AdminWallet struct {
+	Email            string    `json:"email"`
 	Balance          float64   `gorm:"default:0" json:"balance"`
 	TotalDeposits    float64   `gorm:"default:0" json:"total_deposits"`
 	TotalWithdrawals float64   `gorm:"default:0" json:"total_withdrawals"`
