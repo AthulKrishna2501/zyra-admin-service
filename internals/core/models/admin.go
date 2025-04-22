@@ -8,10 +8,11 @@ import (
 )
 
 type AdminWallet struct {
-	Email     string    `json:"email"`
-	Balance   float64   `json:"balance"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Balance          float64   `json:"balance"`
+	TotalDeposits    float64   `json:"total_deposits"`
+	TotalWithdrawals float64   `json:"total_withdrawals"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 type DashboardStats struct {

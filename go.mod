@@ -12,6 +12,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.20.0
 	google.golang.org/grpc v1.71.1
+	google.golang.org/protobuf v1.36.6
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
@@ -60,6 +61,5 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
