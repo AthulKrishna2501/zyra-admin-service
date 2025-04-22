@@ -172,6 +172,28 @@ func (s *AdminService) ViewAdminWallet(ctx context.Context, req *pb.ViewAdminWal
 	}, nil
 }
 
+func (s *AdminService) GetAdminWalletTransactions(ctx context.Context, req *pb.GetAdminTransactionRequest) (*pb.GetAdminTransactionResponse, error) {
+	walletTransactions, err := s.AdminRepo.GetAllAdminTransactions(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to retrieve admin wallet transactions: %v", err.Error())
+	}
+
+	var protoTransactions []*pb.AdminWalletTransaction
+	for _, txn := range walletTransactions {
+		protoTransactions = append(protoTransactions, &pb.AdminWalletTransaction{
+			TransactionId: txn.TransactionID.String(),
+			Date:          txn.Date.String(),
+			Amount:        float32(txn.Amount),
+			Type:          txn.Type,
+			Status:        txn.Status,
+		})
+	}
+
+	return &pb.GetAdminTransactionResponse{
+		WalletTransactions: protoTransactions,
+	}, nil
+}
+
 func (s *AdminService) ListCategory(ctx context.Context, req *pb.ListCategoryRequest) (*pb.ListCategoryResponse, error) {
 	categories, err := s.AdminRepo.ListCategories(ctx)
 	if err != nil {

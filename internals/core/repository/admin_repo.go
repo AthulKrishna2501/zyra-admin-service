@@ -37,6 +37,7 @@ type AdminRepository interface {
 	GetAdminDashboard(ctx context.Context) (*adminModel.DashboardStats, error)
 	GetAdminWallet(ctx context.Context, email string) (*adminModel.AdminWallet, error)
 	GetAllBookings(ctx context.Context) ([]adminModel.Booking, error)
+	GetAllAdminTransactions(ctx context.Context) ([]adminModel.AdminWalletTransaction, error)
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -237,4 +238,17 @@ func (r *AdminStorage) GetAllBookings(ctx context.Context) ([]adminModel.Booking
 	}
 
 	return bookings, nil
+}
+
+func (r *AdminStorage) GetAllAdminTransactions(ctx context.Context) ([]adminModel.AdminWalletTransaction, error) {
+	var transactions []adminModel.AdminWalletTransaction
+
+	err := r.DB.WithContext(ctx).
+		Find(&transactions).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
 }

@@ -2,6 +2,8 @@ github.com/AthulKrishna2501/proto-repo v0.0.0-20250417041400-7b53a8571ca7 h1:TtC
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250417041400-7b53a8571ca7/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250422081458-bdc40abdbe9a h1:DMuudx9l+bfFzX3/+gfislwRpbfPJY1N2/N8aCqI9j4=
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250422081458-bdc40abdbe9a/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250422095619-af16fd269fd7 h1:6C7jdqChRYWeKpkNRqRYOeCtRIHQlaeo5h589R9QmUM=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250422095619-af16fd269fd7/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
 github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250326043459-f9afef228c5c h1:dx/34CESN1fNhxNgjpzg7xXFC6y32RpLyn3OPD57oJM=
 github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250326043459-f9afef228c5c/go.mod h1:O+QgY/SV46uPxtKVZdasZn5yejeHieK5M8hI2/KNZOs=
 github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250405071438-0c0ffc19c6be h1:5e7UQpXw07irLRnifFtIbazzP1k7MVY3vqvNBusFS7c=
