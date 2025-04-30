@@ -3,7 +3,7 @@ module github.com/AthulKrishna2501/zyra-admin-service
 go 1.24.2
 
 require (
-	github.com/AthulKrishna2501/proto-repo v0.0.0-20250430044607-a85fd73e208b
+	github.com/AthulKrishna2501/proto-repo v0.0.0-20250430055023-81cd81a75e38
 	github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250423072851-8d3be65bee5c
 	github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250430042754-c4c9512c4341
 	github.com/gin-gonic/gin v1.10.0

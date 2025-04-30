@@ -13,14 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
-	UserID          string `gorm:"type:uuid"`
-	Email           string
-	Role            string
-	IsBlocked       bool
-	IsEmailVerified bool
-}
-
 type AdminStorage struct {
 	DB *gorm.DB
 }
@@ -28,7 +20,7 @@ type AdminStorage struct {
 type AdminRepository interface {
 	UpdateCategoryRequestStatus(ctx context.Context, vendorID, categoryID, status string) error
 	UpdateRequestStatus(ctx context.Context, vendorID, status string) error
-	GetAllUsers(ctx context.Context) ([]User, error)
+	GetAllUsers(ctx context.Context) ([]adminModel.UserInfo, error)
 	ListCategories(ctx context.Context) ([]models.Category, error)
 	AddVendorCategory(ctx context.Context, VendorID, CategoryID string) error
 	GetRequests(ctx context.Context) ([]models.CategoryRequest, error)
@@ -64,15 +56,26 @@ func (r *AdminStorage) UpdateCategoryRequestStatus(ctx context.Context, vendorID
 	return nil
 }
 
-func (r *AdminStorage) GetAllUsers(ctx context.Context) ([]User, error) {
-	var users []User
+func (r *AdminStorage) GetAllUsers(ctx context.Context) ([]adminModel.UserInfo, error) {
+	var users []adminModel.UserInfo
+
 	result := r.DB.WithContext(ctx).
-		Select("user_id, email, role, is_blocked, is_email_verified").
-		Find(&users)
+		Table("users").
+		Select(`
+			users.user_id,
+			users.email,
+			users.role,
+			users.is_blocked,
+			user_details.first_name,
+			user_details.last_name
+		`).
+		Joins("JOIN user_details ON user_details.user_id = users.user_id").
+		Scan(&users)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
 	return users, nil
 }
 

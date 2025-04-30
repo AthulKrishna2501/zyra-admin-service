@@ -100,12 +100,13 @@ func (s *AdminService) ListUsers(ctx context.Context, req *pb.ListUsersRequest) 
 
 	var userList []*pb.User
 	for _, user := range users {
+		FullName := user.FirstName + " " + user.LastName
 		userList = append(userList, &pb.User{
-			UserId:          user.UserID,
-			Email:           user.Email,
-			Role:            user.Role,
-			IsBlocked:       user.IsBlocked,
-			IsEmailVerified: user.IsEmailVerified,
+			UserId:    user.UserId,
+			Name:      FullName,
+			Email:     user.Email,
+			Role:      user.Role,
+			IsBlocked: user.IsBlocked,
 		})
 	}
 
