@@ -119,7 +119,7 @@ func (r *AdminStorage) GetRequests(ctx context.Context) ([]models.CategoryReques
 	result := r.DB.WithContext(ctx).
 		Joins("JOIN categories c ON c.category_id = category_requests.category_id").
 		Joins("JOIN user_details u ON u.user_id = category_requests.vendor_id").
-		Select("category_requests.vendor_id, category_requests.category_id, c.category_name as category_name, u.first_name as vendor_name").
+		Select("category_requests.vendor_id, category_requests.category_id, category_requests.created_at,c.category_name as category_name, u.first_name as vendor_name").
 		Find(&CatRequests)
 
 	if result.Error != nil {
