@@ -124,7 +124,8 @@ func (s *AdminService) ViewRequests(ctx context.Context, req *pb.ViewRequestsReq
 			VendorId:   r.VendorID.String(),
 			CategoryId: r.CategoryID.String(),
 			Name:       r.CategoryName,
-			// VendorName: r.VendorName,
+			VendorName: r.VendorName,
+			Date:       r.CreatedAt.String(),
 		})
 
 	}

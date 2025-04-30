@@ -3,9 +3,9 @@ module github.com/AthulKrishna2501/zyra-admin-service
 go 1.24.2
 
 require (
-	github.com/AthulKrishna2501/proto-repo v0.0.0-20250422095619-af16fd269fd7
-	github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250326043459-f9afef228c5c
-	github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250405071438-0c0ffc19c6be
+	github.com/AthulKrishna2501/proto-repo v0.0.0-20250430044607-a85fd73e208b
+	github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250423072851-8d3be65bee5c
+	github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250430042754-c4c9512c4341
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.7.1
