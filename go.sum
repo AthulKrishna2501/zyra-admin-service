@@ -4,8 +4,16 @@ github.com/AthulKrishna2501/proto-repo v0.0.0-20250430044607-a85fd73e208b h1:of8
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250430044607-a85fd73e208b/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250430055023-81cd81a75e38 h1:HODSrlHFvdN0Xsb78ydkewyayGD8yPP3E4DJjGMLc+k=
 github.com/AthulKrishna2501/proto-repo v0.0.0-20250430055023-81cd81a75e38/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501090357-abfdc01f4d86 h1:v06P+Lu8RZr0UppuGVbM8vYlAI+hvy8q2b/RfNbTAjY=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501090357-abfdc01f4d86/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501091128-b2def2ca4849 h1:ReXMl9+kAiDd2w6tlg/O6CnWMhMQofTyU/GYQXW4Y5o=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501091128-b2def2ca4849/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501093137-7d59a00c9ff0 h1:r/Lwmj4/BveAe/t3tlKts4JdUI+IJeGyxzX7FfBVqek=
+github.com/AthulKrishna2501/proto-repo v0.0.0-20250501093137-7d59a00c9ff0/go.mod h1:9zBi50lCPy6xUnagd3y8lFkepeE6HgSpl+j/8zdcljU=
 github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250423072851-8d3be65bee5c h1:s8lO3+Cy3O1n1+67grMQC1uCS9JdV/A0olE97ATQJr8=
 github.com/AthulKrishna2501/zyra-auth-service v0.0.0-20250423072851-8d3be65bee5c/go.mod h1:O+QgY/SV46uPxtKVZdasZn5yejeHieK5M8hI2/KNZOs=
+github.com/AthulKrishna2501/zyra-client-service v0.0.0-20250429102038-f6c7df7dda02 h1:IWxPj2e/3mWtnckMwoUpsov6TBu3aVuSSTRY+RIUo7U=
+github.com/AthulKrishna2501/zyra-client-service v0.0.0-20250429102038-f6c7df7dda02/go.mod h1:YDnDVAy80EXvEzZ8Q/IXRaV9bFgyIU6pgIJZ2dJjKgM=
 github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250430042754-c4c9512c4341 h1:TTgU8vWfAtlYH5fye787S85Jilu/RCe73zTFuE6keKs=
 github.com/AthulKrishna2501/zyra-vendor-service v0.0.0-20250430042754-c4c9512c4341/go.mod h1:blZymyoWRQN/t3MitznZP4C0tLZu1aMm/doM/7g4niU=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

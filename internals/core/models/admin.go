@@ -68,3 +68,8 @@ type FundRelease struct {
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
+
+type EventDetails struct {
+	EventID string  `json:"event_id"`
+	Amount  float64 `json:"amount"`
+}

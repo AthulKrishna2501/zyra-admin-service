@@ -3,11 +3,15 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "github.com/AthulKrishna2501/proto-repo/admin"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/app/config"
+	adminModel "github.com/AthulKrishna2501/zyra-admin-service/internals/core/models"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/core/repository"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/logger"
+	"github.com/AthulKrishna2501/zyra-client-service/internals/core/models"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -243,4 +247,97 @@ func (s *AdminService) GetAllBookings(ctx context.Context, req *pb.GetAllBooking
 	return &pb.GetAllBookingsResponse{
 		Bookings: pbBookings,
 	}, nil
+}
+
+func (s *AdminService) GetFundRelease(ctx context.Context, req *pb.FundReleaseRequest) (*pb.FundReleaseResponse, error) {
+	requests, err := s.AdminRepo.GetAllFundReleaseRequests(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to fetch fund release requests %v:", err)
+	}
+
+	var pbRequest []*pb.FundReleaseRequests
+	for _, req := range requests {
+		pbRequest = append(pbRequest, &pb.FundReleaseRequests{
+			RequestId: req.RequestID.String(),
+			EventId:   req.EventID.String(),
+			EventName: req.EventName,
+			Amount:    float32(req.Amount),
+			Tickets:   uint32(req.Tickets),
+			Status:    req.Status,
+		})
+	}
+
+	return &pb.FundReleaseResponse{
+		Requests: pbRequest,
+	}, nil
+
+}
+
+func (s *AdminService) ApproveFundRelease(ctx context.Context, req *pb.ApproveFundReleaseRequest) (*pb.ApproveFundReleaseResponse, error) {
+	requestID := req.GetRequestId()
+	newStatus := req.GetStatus()
+
+	if newStatus == "approved" {
+		details, err := s.AdminRepo.GetEventDetails(ctx, requestID)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to fetch event details %v :", err)
+		}
+
+		userID, err := s.AdminRepo.GetUserIDWithEventID(ctx, details.EventID)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to fetch userID %v", err)
+		}
+
+		userUUID, err := uuid.Parse(userID)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "failed to parse user_id %v", err)
+		}
+
+		newTransaction := &models.Transaction{
+			UserID:        userUUID,
+			Purpose:       "Fund Release",
+			AmountPaid:    int(details.Amount),
+			PaymentMethod: "wallet",
+			DateOfPayment: time.Now(),
+			PaymentStatus: "refunded",
+		}
+
+		newAdminWalletTransaction := &adminModel.AdminWalletTransaction{
+			Date:   time.Now(),
+			Type:   "Fund Release",
+			Amount: details.Amount,
+			Status: "succeeded",
+		}
+
+		err = s.AdminRepo.DebitAmountFromAdminWallet(ctx, details.Amount, "admin@example.com")
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to debit amount from admin wallet %v ", err)
+		}
+
+		err = s.AdminRepo.CreateAdminWalletTransaction(ctx, newAdminWalletTransaction)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to create admin wallet transaction")
+		}
+		err = s.AdminRepo.CreditAmountToClientWallet(ctx, details.Amount, userID)
+
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to credit amount to client wallet %v", err)
+		}
+
+		err = s.AdminRepo.CreateTransaction(ctx, newTransaction)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to create transaction: %v", err)
+		}
+
+	}
+
+	err := s.AdminRepo.UpdateFundReleaseStatus(ctx, requestID, newStatus)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to fetch fund release requests %v:", err)
+	}
+
+	return &pb.ApproveFundReleaseResponse{
+		Message: fmt.Sprintf("Fund release request %s has been %s", requestID, newStatus),
+	}, nil
+
 }

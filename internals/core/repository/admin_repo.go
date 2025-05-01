@@ -8,6 +8,7 @@ import (
 
 	adminModel "github.com/AthulKrishna2501/zyra-admin-service/internals/core/models"
 	auth "github.com/AthulKrishna2501/zyra-auth-service/internals/core/models"
+	clientModel "github.com/AthulKrishna2501/zyra-client-service/internals/core/models"
 	"github.com/AthulKrishna2501/zyra-vendor-service/internals/core/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -30,6 +31,14 @@ type AdminRepository interface {
 	GetAdminWallet(ctx context.Context, email string) (*adminModel.AdminWallet, error)
 	GetAllBookings(ctx context.Context) ([]adminModel.Booking, error)
 	GetAllAdminTransactions(ctx context.Context) ([]adminModel.AdminWalletTransaction, error)
+	GetAllFundReleaseRequests(ctx context.Context) ([]adminModel.FundRelease, error)
+	UpdateFundReleaseStatus(ctx context.Context, requestID, status string) error
+	GetEventDetails(ctx context.Context, requestID string) (*adminModel.EventDetails, error)
+	GetUserIDWithEventID(ctx context.Context, eventID string) (string, error)
+	CreateTransaction(ctx context.Context, newTransaction *clientModel.Transaction) error
+	CreditAmountToClientWallet(ctx context.Context, amount float64, userID string) error
+	DebitAmountFromAdminWallet(ctx context.Context, amount float64, adminEmail string) error
+	CreateAdminWalletTransaction(ctx context.Context, newAdminWalletTransaction *adminModel.AdminWalletTransaction) error
 }
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
@@ -254,4 +263,78 @@ func (r *AdminStorage) GetAllAdminTransactions(ctx context.Context) ([]adminMode
 	}
 
 	return transactions, nil
+}
+
+func (r *AdminStorage) GetAllFundReleaseRequests(ctx context.Context) ([]adminModel.FundRelease, error) {
+	var requests []adminModel.FundRelease
+	err := r.DB.WithContext(ctx).Find(&requests).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return requests, nil
+
+}
+
+func (r *AdminStorage) UpdateFundReleaseStatus(ctx context.Context, requestID, status string) error {
+	err := r.DB.WithContext(ctx).Model(adminModel.FundRelease{}).Where("request_id = ?", requestID).Update("status", status).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (r *AdminStorage) GetEventDetails(ctx context.Context, requestID string) (*adminModel.EventDetails, error) {
+	var eventDetails adminModel.EventDetails
+	err := r.DB.WithContext(ctx).Model(&adminModel.FundRelease{}).Where("request_id = ?", requestID).Scan(&eventDetails).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &eventDetails, nil
+
+}
+func (r *AdminStorage) GetUserIDWithEventID(ctx context.Context, eventID string) (string, error) {
+	var HostedBy string
+	err := r.DB.WithContext(ctx).
+		Model(&clientModel.Event{}).
+		Select("hosted_by").
+		Where("event_id = ?", eventID).
+		Scan(&HostedBy).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	return HostedBy, nil
+}
+
+func (r *AdminStorage) CreateTransaction(ctx context.Context, newTransaction *clientModel.Transaction) error {
+	return r.DB.WithContext(ctx).Create(newTransaction).Error
+
+}
+
+func (r *AdminStorage) CreditAmountToClientWallet(ctx context.Context, amount float64, userID string) error {
+	return r.DB.
+		Model(&models.Wallet{}).Where("client_id = ?", userID).
+		Updates(map[string]interface{}{
+			"wallet_balance":        gorm.Expr("wallet_balance + ?", amount),
+			"total_deposits": gorm.Expr("total_deposits + ?", amount),
+		}).Error
+
+}
+
+func (r *AdminStorage) CreateAdminWalletTransaction(ctx context.Context, newAdminWalletTransaction *adminModel.AdminWalletTransaction) error {
+	return r.DB.WithContext(ctx).Create(newAdminWalletTransaction).Error
+}
+
+func (r *AdminStorage) DebitAmountFromAdminWallet(ctx context.Context, amount float64, adminEmail string) error {
+	return r.DB.
+		Model(&adminModel.AdminWallet{}).Where("email = ?", adminEmail).
+		Updates(map[string]interface{}{
+			"balance":        gorm.Expr("balance - ?", amount),
+			"total_deposits": gorm.Expr("total_withdrawals + ?", amount),
+		}).Error
 }
