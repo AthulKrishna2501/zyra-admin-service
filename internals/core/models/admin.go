@@ -57,3 +57,14 @@ type UserInfo struct {
 	Role      string `json:"role"`
 	IsBlocked bool   `json:"is_blocked"`
 }
+
+type FundRelease struct {
+	RequestID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
+	EventID   uuid.UUID `gorm:"type:uuid"`
+	EventName string    `gorm:"typevarchar(255)"`
+	Amount    float64
+	Tickets   uint
+	Status    string    `gorm:"type:varchar(255)"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
