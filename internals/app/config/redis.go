@@ -10,10 +10,10 @@ import (
 
 var RedisClient *redis.Client
 
-func 	InitRedis() {
+func InitRedis() {
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     "redis:6379",
+		Password: "mysecret",
 		DB:       0,
 	})
 

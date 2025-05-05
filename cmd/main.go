@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/app/config"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/app/grpc"
+	"github.com/AthulKrishna2501/zyra-admin-service/internals/app/healthcheck"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/core/database"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/core/repository"
 	"github.com/AthulKrishna2501/zyra-admin-service/internals/logger"
@@ -24,6 +25,7 @@ func main() {
 		log.Error("Failed to connect to database")
 		return
 	}
+	log.Info("DB connected successfully")
 
 	AdminRepo := repository.NewAdminRepository(db)
 
@@ -36,6 +38,8 @@ func main() {
 
 	router := gin.Default()
 	log.Info("HTTP Server started on port 3006")
+
+	router.GET("/health", healthcheck.HealthCheckHandler)
 	router.Run(":3006")
 
 }
